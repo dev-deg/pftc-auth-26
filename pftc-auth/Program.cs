@@ -1,8 +1,11 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
+using pftc_auth.DataAccess;
 
 var builder = WebApplication.CreateBuilder(args);
+
+Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", builder.Configuration["Authentication:Google:Credentials"]);
 
 builder.Services.AddAuthentication(options =>
         {
@@ -28,6 +31,8 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddScoped<FirestoreRepository>();
 
 var app = builder.Build();
 

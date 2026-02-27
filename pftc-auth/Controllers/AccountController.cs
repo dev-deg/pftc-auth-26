@@ -18,7 +18,7 @@ public class AccountController : Controller
         var result = await HttpContext.AuthenticateAsync();
         if (!result.Succeeded)
             return RedirectToAction("Login");
-        return RedirectToAction("Index", "Home");
+        return RedirectToAction("Index", "Social");
     }
 
     public IActionResult Logout()
