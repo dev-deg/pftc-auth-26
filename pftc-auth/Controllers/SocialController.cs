@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using pftc_auth.DataAccess;
 using pftc_auth.Models;
@@ -16,11 +17,13 @@ public class SocialController : Controller
     }
 
     // GET
+    [Authorize]
     public IActionResult Index()
     {
         return View();
     }
     
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> CreatePost(SocialMediaPost p)
     {
