@@ -33,4 +33,46 @@ public class SocialController : Controller
         await _repo.CreatePost(p);
         return RedirectToAction("Index","Social");
     }
+    
+    //Delete
+    [Authorize]
+    [HttpPost]
+    public async Task<IActionResult> DeletePost(string postId)
+    {
+        if (string.IsNullOrWhiteSpace(postId)) 
+            return BadRequest("Post ID is required.");
+        try
+        {
+            SocialMediaPost post = await _repo.GetPostById(postId);
+
+            if (post.PostAuthor != User.Identity.Name)
+            {
+                _logger.LogError($"User {User.Identity.Name} tried to delete a post " +
+                                 $"that does not belong to him! It actually belongs to {post.PostAuthor}", postId);
+                return Forbid("You can only delete your own post..");
+            }
+            
+            await _repo.DeletePost(postId);
+            return Ok(new { succes = "true", message = "Post Deleted" });
+        }
+        catch (KeyNotFoundException e)
+        {
+            _logger.LogError($"{postId} not Found: {e.Message}");
+            return NotFound(e.Message);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError($"Error deleting post {postId}: {e.Message}");
+            return StatusCode(500, e.Message);
+        }
+    }
+    
+    //Update
+    [Authorize]
+    [HttpPut]
+    public async Task<IActionResult> UpdatePost()
+    {
+        //await _repo.UpdatePost()
+        return RedirectToAction("Index","Social");
+    }
 }
