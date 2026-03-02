@@ -21,12 +21,28 @@ public class FirestoreRepository
         _logger.LogInformation($"Post by {p.PostAuthor} created successfully.");
     }
 
+    private async Task<QuerySnapshot> GetPostsAsQuerySnapshot()
+    {
+        Query allPostsQuery = _db.Collection("posts");
+        QuerySnapshot querySnapshot = await allPostsQuery.GetSnapshotAsync();
+        return querySnapshot;
+    }
+    
+    private async Task<DocumentSnapshot> GetPostAsDocumentSnapshot(string postId)
+    {
+        Query allPostsQuery = _db.Collection("posts").WhereEqualTo("postId", postId);
+        QuerySnapshot querySnapshot = await allPostsQuery.GetSnapshotAsync();
+
+        if (querySnapshot.Documents.Count == 0)
+            throw new KeyNotFoundException($"Post with id {postId} not found");
+        
+        return querySnapshot.Documents[0];
+    }
+
     public async Task<List<SocialMediaPost>> GetPosts()
     {
         List<SocialMediaPost> posts = new  List<SocialMediaPost>();
-
-        Query allPostsQuery = _db.Collection("posts");
-        QuerySnapshot querySnapshot = await allPostsQuery.GetSnapshotAsync();
+        QuerySnapshot querySnapshot = await GetPostsAsQuerySnapshot();
         foreach (DocumentSnapshot documentSnapshot in querySnapshot.Documents)
         {
             SocialMediaPost post = documentSnapshot.ConvertTo<SocialMediaPost>();
@@ -38,13 +54,7 @@ public class FirestoreRepository
     
     public async Task<SocialMediaPost> GetPostById(string postId)
     {
-        Query allPostsQuery = _db.Collection("posts").WhereEqualTo("postId", postId);
-        QuerySnapshot querySnapshot = await allPostsQuery.GetSnapshotAsync();
-
-        if (querySnapshot.Documents.Count == 0)
-            throw new KeyNotFoundException($"Post with id {postId} not found");
-        
-        DocumentSnapshot documentSnapshot = querySnapshot.Documents[0];
+        DocumentSnapshot documentSnapshot = await GetPostAsDocumentSnapshot(postId);
         SocialMediaPost post = documentSnapshot.ConvertTo<SocialMediaPost>();
         
         _logger.LogInformation($"Returning post {postId} by {post.PostAuthor}");
@@ -61,13 +71,7 @@ public class FirestoreRepository
         try
         {
             //Load the post
-            Query allPostsQuery = _db.Collection("posts").WhereEqualTo("postId", postId);
-            QuerySnapshot querySnapshot = await allPostsQuery.GetSnapshotAsync();
-
-            if (querySnapshot.Documents.Count == 0)
-                throw new KeyNotFoundException($"Post with id {postId} not found");
-        
-            DocumentSnapshot documentSnapshot = querySnapshot.Documents[0];
+            DocumentSnapshot documentSnapshot = await GetPostAsDocumentSnapshot(postId);
             
             //Delete it
             await documentSnapshot.Reference.DeleteAsync();
@@ -82,6 +86,35 @@ public class FirestoreRepository
         catch (Exception e) when (e is not ArgumentException)
         {
             _logger.LogError(e, $"Unexpeted error deleting post by {postId}");
+            throw;
+        }
+        
+    }
+    
+    public async Task UpdatePost(string postId, string postContent)
+    {
+        if (string.IsNullOrWhiteSpace(postId))
+        {
+            throw new ArgumentException("Post ID cannot be null or empty.", nameof(postId));
+        }
+
+        try
+        {
+            //Load the post
+            DocumentSnapshot documentSnapshot = await GetPostAsDocumentSnapshot(postId);
+            
+            //Update it
+            await documentSnapshot.Reference.UpdateAsync("PostContent", postContent);
+            _logger.LogInformation($"Post with id {postId} updated successfully.");
+        }
+        catch (KeyNotFoundException e)
+        {
+            _logger.LogWarning(e.Message);
+            throw;
+        }
+        catch (Exception e) when (e is not ArgumentException)
+        {
+            _logger.LogError(e, $"Unexpeted error updating post by {postId}");
             throw;
         }
         
