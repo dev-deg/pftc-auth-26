@@ -19,4 +19,20 @@
             </form>
         </div>
     </div>
+    
+    <!-- Display the existing posts -->
+    @foreach (SocialMediaPost post in Model)
+    {
+        // Render each post here
+        <div id="@Html.DisplayFor(item => post.PostId)" class="card mb-3">
+            <div class="card-header">
+                <!-- Buttons here later -->
+            </div>
+            <div class="card-body">
+                <p>@Html.DisplayFor(item => post.PostContent)</p>
+                <h6>@Html.DisplayFor(item => post.PostAuthor)</h6>
+            </div>
+        </div>
+    }
+    
 </div>

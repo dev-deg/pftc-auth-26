@@ -20,7 +20,7 @@ public class SocialController : Controller
     [Authorize]
     public IActionResult Index()
     {
-        return View();
+        return View(_repo.GetPosts().Result);
     }
     
     [Authorize]
