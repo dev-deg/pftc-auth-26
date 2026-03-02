@@ -32,7 +32,58 @@ public class FirestoreRepository
             SocialMediaPost post = documentSnapshot.ConvertTo<SocialMediaPost>();
             posts.Add(post);
         }
-        
+        _logger.LogInformation($"{posts.Count} posts found.");
         return posts;
+    }
+    
+    public async Task<SocialMediaPost> GetPostById(string postId)
+    {
+        Query allPostsQuery = _db.Collection("posts").WhereEqualTo("postId", postId);
+        QuerySnapshot querySnapshot = await allPostsQuery.GetSnapshotAsync();
+
+        if (querySnapshot.Documents.Count == 0)
+            throw new KeyNotFoundException($"Post with id {postId} not found");
+        
+        DocumentSnapshot documentSnapshot = querySnapshot.Documents[0];
+        SocialMediaPost post = documentSnapshot.ConvertTo<SocialMediaPost>();
+        
+        _logger.LogInformation($"Returning post {postId} by {post.PostAuthor}");
+        return post;
+    }
+
+    public async Task DeletePost(string postId)
+    {
+        if (string.IsNullOrWhiteSpace(postId))
+        {
+            throw new ArgumentException("Post ID cannot be null or empty.", nameof(postId));
+        }
+
+        try
+        {
+            //Load the post
+            Query allPostsQuery = _db.Collection("posts").WhereEqualTo("postId", postId);
+            QuerySnapshot querySnapshot = await allPostsQuery.GetSnapshotAsync();
+
+            if (querySnapshot.Documents.Count == 0)
+                throw new KeyNotFoundException($"Post with id {postId} not found");
+        
+            DocumentSnapshot documentSnapshot = querySnapshot.Documents[0];
+            
+            //Delete it
+            await documentSnapshot.Reference.DeleteAsync();
+            _logger.LogInformation($"Post with id {postId} deleted successfully.");
+            //If later on we have multimedia (images/videos) these need to be deleted aswell
+        }
+        catch (KeyNotFoundException e)
+        {
+            _logger.LogWarning(e.Message);
+            throw;
+        }
+        catch (Exception e) when (e is not ArgumentException)
+        {
+            _logger.LogError(e, $"Unexpeted error deleting post by {postId}");
+            throw;
+        }
+        
     }
 }
