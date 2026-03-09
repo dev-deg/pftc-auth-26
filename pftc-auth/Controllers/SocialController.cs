@@ -70,7 +70,7 @@ public class SocialController : Controller
     //Update
     [Authorize]
     [HttpPut]
-    public async Task<IActionResult> UpdatePost()
+    public async Task<IActionResult> UpdatePost(SocialMediaPost p)
     {
         //await _repo.UpdatePost()
         return RedirectToAction("Index","Social");
