@@ -15,6 +15,7 @@
                     <label for="PostContent">What's on your mind?</label>
                     <textarea class="form-control" id="PostContent" name="PostContent" rows="3" required></textarea>
                 </div>
+                <input type="hidden" id="ImageUrl" name="ImageUrl" />
                 <div class="form-group mt-3">
                     <label>Attach Image <span class="text-muted">(optional)</span></label>
                     <div>
@@ -47,22 +48,27 @@
         </div>
     </div>
 
-@section Scripts {
-    <script src="~/js/social.js"></script>
-}
     <!-- Display the existing posts -->
     @foreach (SocialMediaPost post in Model)
     {
-        // Render each post here
-        <div id="@Html.DisplayFor(item => post.PostId)" class="card mb-3">
+        <div id="@post.PostId" class="card mb-3">
             <div class="card-header">
                 <!-- Buttons here later -->
             </div>
             <div class="card-body">
-                <p>@Html.DisplayFor(item => post.PostContent)</p>
-                <h6>@Html.DisplayFor(item => post.PostAuthor)</h6>
+                @if (!string.IsNullOrEmpty(post.ImageUrl))
+                {
+                    <img src="@post.ImageUrl" alt="Post image" class="img-fluid mb-2" style="max-height: 400px;" />
+                }
+                <p>@post.PostContent</p>
+                <h6 class="text-muted">@post.PostAuthor</h6>
             </div>
         </div>
     }
-    
+
 </div>
+
+@section Scripts {
+    <script src="~/js/social.js"></script>
+}
+
