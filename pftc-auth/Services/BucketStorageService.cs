@@ -22,6 +22,13 @@ public class BucketStorageService:IBucketStorageService
         {
             throw new ArgumentNullException(nameof(file), "File is empty or null");
         }
+        
+        string[] permittedExtensions = { ".jpg", ".jpeg", ".png", ".gif" };
+        if (!permittedExtensions.Contains(Path.GetExtension(file.FileName).ToLowerInvariant()))
+        {
+            throw new ArgumentException(nameof(file), "File extension is not accepted. Allowed extensions are: " + 
+                                                      string.Join(", ", permittedExtensions));
+        }
 
         try
         {
