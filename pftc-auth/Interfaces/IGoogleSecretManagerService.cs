@@ -1,0 +1,7 @@
+namespace pftc_auth.Interfaces;
+
+public interface IGoogleSecretManagerService
+{
+    Task<string> GetSecretAsync(string secretName);
+    Task LoadSecretsIntoConfigurationAsync(IConfiguration config);
+}

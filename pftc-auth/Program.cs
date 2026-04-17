@@ -9,6 +9,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", builder.Configuration["Authentication:Google:Credentials"]);
 
+var secretManager = new GoogleSecretManagerService(builder.Configuration["Authentication:Google:ProjectId"], 
+    builder.Services.BuildServiceProvider().GetRequiredService<ILogger<GoogleSecretManagerService>>());
+await secretManager.LoadSecretsIntoConfigurationAsync(builder.Configuration);
+
 builder.Services.AddAuthentication(options =>
         {
             options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
