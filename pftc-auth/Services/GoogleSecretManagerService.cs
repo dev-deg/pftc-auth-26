@@ -49,6 +49,7 @@ public class GoogleSecretManagerService : IGoogleSecretManagerService
             {
                 {"Authentication:Google:ClientId", web.GetProperty("client_id").GetString()!},
                 {"Authentication:Google:ClientSecret", web.GetProperty("client_secret").GetString()!},
+                {"Authentication:Redis:ConnectionString", web.GetProperty("redis").GetString()!},
             };
             
             foreach (var secret in secrets)
