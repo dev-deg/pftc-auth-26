@@ -42,6 +42,7 @@ public class GoogleSecretManagerService : IGoogleSecretManagerService
         try
         {
             var googleClientJson = await GetSecretAsync("oauth");
+            var redisConnectionString = await GetSecretAsync("redis");
             var jsonDoc = JsonDocument.Parse(googleClientJson);
             var web = jsonDoc.RootElement.GetProperty("web");
 
@@ -49,7 +50,7 @@ public class GoogleSecretManagerService : IGoogleSecretManagerService
             {
                 {"Authentication:Google:ClientId", web.GetProperty("client_id").GetString()!},
                 {"Authentication:Google:ClientSecret", web.GetProperty("client_secret").GetString()!},
-                {"Authentication:Redis:ConnectionString", web.GetProperty("redis").GetString()!},
+                {"Authentication:Redis:ConnectionString", redisConnectionString},
             };
             
             foreach (var secret in secrets)

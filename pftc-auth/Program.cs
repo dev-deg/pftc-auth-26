@@ -40,6 +40,7 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddScoped<FirestoreRepository>();
 builder.Services.AddScoped<IBucketStorageService, BucketStorageService>();
+builder.Services.AddScoped<ICacheService, CacheService>();
 
 var app = builder.Build();
 
